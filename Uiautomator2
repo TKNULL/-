@@ -1,0 +1,60 @@
+package com.example.gist.uiautomator1102;
+
+import android.os.RemoteException;
+import android.support.test.InstrumentationRegistry;
+import android.app.Instrumentation;
+import android.support.test.uiautomator.UiDevice;
+import android.support.test.uiautomator.UiObject;
+import android.support.test.uiautomator.UiObjectNotFoundException;
+import android.support.test.uiautomator.UiSelector;
+
+
+public class demo {
+    private Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+    private UiDevice uidevice = UiDevice.getInstance(instrumentation);
+
+    //wlan环境下，打开应用商店，进行下载
+    void downloadApp() throws RemoteException, UiObjectNotFoundException, InterruptedException {
+        //一、亮屏
+        uidevice.wakeUp();
+
+        //二、向上滑动解锁
+        uidevice.drag(500, 100, 500, 2000, 100);
+        uidevice.pressHome();   //确保处于首页
+
+        //三、查找应用商店APP
+        UiObject appName = uidevice.findObject(new UiSelector().text("应用商店"));
+        for(int i =0;i<5;i++){
+            if(appName.exists()){
+                appName.click();
+                uidevice.wait(1000);
+                break;
+            }else{
+                uidevice.drag(50,2000,1050,2000,100);
+            }
+        }
+        uidevice.wait(1000);
+
+        //四、进入应用商店，搜索指定的应用，点击下载
+        UiObject search = uidevice.findObject(new UiSelector().resourceId("com.android.meitu.appstore:id/activity_preload_bar"));
+        search.click();
+        UiObject search_click = uidevice.findObject(new UiSelector().resourceId("com.android.meitu.appstore:id/activity_search_view"));
+
+        //五、下载王者荣耀
+        search_click.setText("王者荣耀");
+        uidevice.waitForWindowUpdate(String.valueOf("王者荣耀"),5*1000);     //等待进入下载页面
+        UiObject down_button = uidevice.findObject(new UiSelector().text("下载"));
+        if(down_button.exists()){
+            down_button.click();
+            uidevice.waitForWindowUpdate(String.valueOf("打开"),60*1000);     //等待6分钟下载完成
+        }
+        //六、下载QQ飞车
+        search.click();
+        search_click.setText("QQ飞车");
+        uidevice.waitForWindowUpdate(String.valueOf("QQ飞车"),5*1000);     //等待进入下载页面
+        if(down_button.exists()){
+            down_button.click();
+            uidevice.waitForWindowUpdate(String.valueOf("打开"),60*1000);     //等待6分钟下载完成
+        }
+    }
+}
