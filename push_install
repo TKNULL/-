@@ -1,0 +1,7 @@
+adb push ./app-debug.apk /data/local/tmp/com.example.acer.u2demo.test
+adb shell pm install -t -r "/data/local/tmp/com.example.acer.u2demo.test"
+
+adb push ./app-debug-androidTest.apk /data/local/tmp/com.example.acer.u2demo.test
+adb shell pm install -t -r "/data/local/tmp/com.example.acer.u2demo.test"
+
+adb shell am instrument -w -r   -e package com.example.acer.u2demo -e debug false com.example.acer.u2demo.test/android.support.test.runner.AndroidJUnitRunner
