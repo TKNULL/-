@@ -1,0 +1,121 @@
+package com.example.acer.u2demo;
+
+import android.app.Instrumentation;
+import android.os.RemoteException;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
+import android.support.test.uiautomator.By;
+import android.support.test.uiautomator.UiDevice;
+import android.support.test.uiautomator.UiObject;
+import android.support.test.uiautomator.UiObject2;
+import android.support.test.uiautomator.UiObjectNotFoundException;
+import android.support.test.uiautomator.UiSelector;
+import android.util.Log;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static java.nio.file.Files.createFile;
+
+
+@RunWith(AndroidJUnit4.class)
+public class demo01 {
+    public Instrumentation myInstrumentation;
+    public UiDevice thisdevice;
+
+    @Before
+    public void setUp(){
+        myInstrumentation = InstrumentationRegistry.getInstrumentation();
+        thisdevice = UiDevice.getInstance(myInstrumentation);
+    }
+    @After
+    public void tearDown(){
+    }
+
+
+    @Test
+    public void weixinSendMessage() throws RemoteException, UiObjectNotFoundException, InterruptedException {
+        //一、亮屏
+        if (!thisdevice.isScreenOn()){
+            thisdevice.wakeUp();
+            thisdevice.waitForIdle(1000);
+        }
+
+        //二、向上滑动解锁
+        int width =thisdevice.getDisplayWidth();
+        int height = thisdevice.getDisplayHeight();
+        int bottomX= width/2;
+        int bottonY = height;
+        int topX = width/2;
+        int topY = 0;
+        thisdevice.swipe(bottomX,bottonY,topX,topY,100);
+
+        //三、查找并打开微信APP
+        thisdevice.pressHome();
+        UiObject appName = thisdevice.findObject(new UiSelector().text("微信"));
+        int LeftX = 0;
+        int LeftY = height/2;
+        int RightX = height/2;
+        int RightY = width-100;
+        for(int i =0;i<5;i++){
+            if(appName.exists()){
+                Log.d("sendMessage()","APP存在"+appName);
+                appName.click();
+                thisdevice.waitForIdle(1000);
+                break;
+            }else{
+                thisdevice.swipe(RightX,RightY,LeftX,LeftY,60);
+            }
+        }
+        thisdevice.waitForIdle(1000);
+
+        //四、查找指定联系人
+        UiObject wxButn = thisdevice.findObject(new UiSelector().resourceId("com.tencent.mm:id/ca5").text("微信"));
+        wxButn.click();
+        UiObject contact = thisdevice.findObject(new UiSelector().text("文件传输助手"));
+        if(contact.exists()){       //如果文件助手在当前屏幕内，直接点击
+            contact.click();
+            thisdevice.waitForIdle(1000);
+        }else if(!contact.exists()){    //如果不在当前屏幕内，滑动查找
+            //thisdevice.swipe(topX,topY+400,bottomX,bottonY-400,70); //先回到顶部
+            for(int j = 0; j<3;j++){
+                if(contact.exists()) {
+                    contact.click();
+                    thisdevice.waitForIdle(1000);
+                    break;
+                }else{
+                    thisdevice.swipe(bottomX,bottonY-400,topX,topY+400,100);
+                    thisdevice.waitForIdle(1000);
+                }
+            }
+        }
+
+        //五、发送表情
+        UiObject2 Expression= thisdevice.findObject(By.res("com.tencent.mm:id/aae"));       //点击表情按钮
+        Expression.click();
+        thisdevice.waitForIdle(2000);
+        UiObject custom = thisdevice.findObject(new UiSelector().resourceId("com.tencent.mm:id/d9o").childSelector(new UiSelector().index(1)));     //点击自定义表情
+        custom.click();
+        thisdevice.waitForIdle(2000);
+        UiObject firstExpression = thisdevice.findObject(new UiSelector().resourceId("com.tencent.mm:id/qh").childSelector(new UiSelector().index(0)));     //点击第一张图片发送
+        firstExpression.click();
+        thisdevice.waitForIdle(3000);
+
+        //六、返回到桌面
+        thisdevice.pressBack();
+        thisdevice.pressBack();
+        thisdevice.pressBack();
+        thisdevice.waitForIdle(2000);
+    }
+
+
+    public void wakeup() throws RemoteException {
+        thisdevice.pressRecentApps();
+        thisdevice.waitForIdle(2000);
+        thisdevice.pressBack();
+        thisdevice.waitForIdle(2000);
+    }
+
+
+}
